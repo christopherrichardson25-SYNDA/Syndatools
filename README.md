@@ -1,6 +1,6 @@
-# VibraTools – SYNDAverse
+# SyndaTools – SYNDAverse
 
-**VibraTools** es la familia de aplicaciones de SYNDAverse que utilizan la **mecánica resonante (TRU)** para transformar distintos sectores:
+**SyndaTools** es la familia de aplicaciones de SYNDAverse que utilizan la **mecánica resonante (TRU)** para transformar distintos sectores:
 
 ## 🔹 Herramientas actuales
 - **Vibramed** → Medicina vibratoria de precisión: diagnóstico y terapias resonantes.
