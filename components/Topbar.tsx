@@ -1,51 +1,37 @@
+// components/Topbar.tsx
 "use client";
-
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import SyndabrainModal from "@/components/SyndabrainModal";
+import { useState } from "react";
+import SyndabrainModal from "./SyndabrainModal";
 
 export default function Topbar() {
   const [open, setOpen] = useState(false);
-  const params = useSearchParams();
-
-  // BASE en .env: NEXT_PUBLIC_SYNDABRAIN_URL = https://syndaverse-dashboard.vercel.app/syndabrain
-  const base = process.env.NEXT_PUBLIC_SYNDABRAIN_URL || "";
-  const src = useMemo(() => {
-    const u = new URL(`${base.replace(/\/$/, "")}/widget`);
-    u.searchParams.set("lang", "es");
-    u.searchParams.set("source", "syndatools");
-    u.searchParams.set("section", "header");
-    return u.toString();
-  }, [base]);
-
-  // auto-abrir si viene ?chat=1
-  useEffect(() => {
-    if (params?.get("chat") === "1") setOpen(true);
-  }, [params]);
 
   return (
-    <header className="border-b">
-      <div className="container-xl flex items-center gap-3 h-14">
-        <span className="font-semibold">SyndaTools</span>
+    <header className="sticky top-0 z-40 border-b border-sv-border bg-white/80 backdrop-blur">
+      <div className="container-xl flex h-14 items-center gap-3">
+        <div className="flex items-center gap-2">
+          <div className="size-6 rounded-md bg-sv-primary" />
+          <span className="font-semibold">SyndaTools</span>
+        </div>
 
         <div className="ml-auto flex items-center gap-2">
-          <Link href="/tools" className="btn btn-ghost">Catálogo</Link>
-          <a
-            href={process.env.NEXT_PUBLIC_LANDING_URL || "/"}
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-ghost"
+          <a href="/tools" className="btn btn-ghost">Catálogo</a>
+          <button
+            onClick={() => setOpen(true)}
+            className="btn btn-primary"
+            aria-haspopup="dialog"
           >
-            Syndaverse
-          </a>
-          <button className="btn btn-primary" onClick={() => setOpen(true)}>
             LET’S CHAT
           </button>
         </div>
       </div>
 
-      <SyndabrainModal open={open} onClose={() => setOpen(false)} src={src} />
+      {/* Modal */}
+      <SyndabrainModal
+        open={open}
+        onClose={() => setOpen(false)}
+        pageContext={{ source: "syndatools", section: "header" }}
+      />
     </header>
   );
 }
