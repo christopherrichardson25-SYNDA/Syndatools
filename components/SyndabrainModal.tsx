@@ -20,7 +20,7 @@ export default function SyndabrainModal({
 }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
-  // Abrir/cerrar dialog controlado
+  // Abrir/cerrar
   useEffect(() => {
     const d = dialogRef.current;
     if (!d) return;
@@ -32,26 +32,25 @@ export default function SyndabrainModal({
   useEffect(() => {
     const d = dialogRef.current;
     if (!d) return;
-    const onCancel = (e: Event) => {
-      e.preventDefault();
-      onClose();
-    };
+    const onCancel = (e: Event) => { e.preventDefault(); onClose(); };
     d.addEventListener("cancel", onCancel);
     return () => d.removeEventListener("cancel", onCancel);
   }, [onClose]);
 
-  // Evitar hydration: idioma estable en el primer render
+  // 1) Idioma sólo en cliente
   const [lang, setLang] = useState<"en" | "es">("en");
   useEffect(() => {
     try {
       const raw = typeof navigator !== "undefined" ? navigator.language : "";
       setLang(raw.toLowerCase().startsWith("es") ? "es" : "en");
-    } catch {
-      /* noop */
-    }
+    } catch {}
   }, []);
 
-  // Normaliza pageContext -> string
+  // 2) Montado en cliente -> evita hydration mismatch
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  // Normaliza contexto
   const normalizedEntries: [string, string][] = Object.entries(pageContext).map(
     ([k, v]) => [k, v == null ? "" : String(v)]
   );
@@ -73,95 +72,45 @@ export default function SyndabrainModal({
   const onBackdropClick = (e: React.MouseEvent<HTMLDialogElement>) => {
     const d = dialogRef.current!;
     const r = d.getBoundingClientRect();
-    const inside =
-      e.clientX >= r.left &&
-      e.clientX <= r.right &&
-      e.clientY >= r.top &&
-      e.clientY <= r.bottom;
+    const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
     if (!inside) onClose();
   };
 
   return (
-    <dialog
-      ref={dialogRef}
-      className="s-modal"
-      onMouseDown={onBackdropClick}
-      aria-labelledby="syndabrain-title"
-    >
+    <dialog ref={dialogRef} className="s-modal" onMouseDown={onBackdropClick} aria-labelledby="syndabrain-title">
       <div className="s-card">
         <header className="s-header">
-          <h2 id="syndabrain-title" className="s-title">
-            SYNDA Chat
-          </h2>
-          <button className="s-close" onClick={onClose} aria-label="Close">
-            ✕
-          </button>
+          <h2 id="syndabrain-title" className="s-title">SYNDA Chat</h2>
+          <button className="s-close" onClick={onClose} aria-label="Close">✕</button>
         </header>
-        <iframe
-          src={src}
-          title="Syndabrain"
-          allow="clipboard-write; microphone; camera"
-          className="s-iframe"
-        />
+
+        {/* IMPORTANTE: sólo renderizar el iframe cuando el componente ya está montado */}
+        {mounted ? (
+          <iframe
+            src={src}
+            title="Syndabrain"
+            allow="clipboard-write; microphone; camera"
+            className="s-iframe"
+          />
+        ) : (
+          <div className="s-iframe" aria-hidden>
+            {/* pequeño placeholder opcional */}
+          </div>
+        )}
       </div>
 
       <style jsx>{`
-        .s-modal {
-          padding: 0;
-          border: none;
-          background: transparent;
-        }
-        .s-modal::backdrop {
-          backdrop-filter: blur(4px);
-          background: rgba(0, 0, 0, 0.35);
-        }
-        .s-card {
-          width: min(960px, 95vw);
-          height: min(80vh, 820px);
-          background: #fff;
-          border-radius: 16px;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-        }
-        .s-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 10px 12px;
-          border-bottom: 1px solid #e5e7eb;
-        }
-        .s-title {
-          margin: 0;
-          font-size: 1rem;
-          font-weight: 600;
-        }
-        .s-close {
-          border: 1px solid #e5e7eb;
-          border-radius: 10px;
-          padding: 6px 10px;
-          background: #f9fafb;
-          cursor: pointer;
-        }
-        .s-iframe {
-          flex: 1;
-          width: 100%;
-          border: 0;
-        }
+        .s-modal { padding:0; border:none; background:transparent; }
+        .s-modal::backdrop { backdrop-filter: blur(4px); background: rgba(0,0,0,.35); }
+        .s-card { width:min(960px,95vw); height:min(80vh,820px); background:#fff; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.15); display:flex; flex-direction:column; overflow:hidden; }
+        .s-header { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-bottom:1px solid #e5e7eb; }
+        .s-title { margin:0; font-size:1rem; font-weight:600; }
+        .s-close { border:1px solid #e5e7eb; border-radius:10px; padding:6px 10px; background:#f9fafb; cursor:pointer; }
+        .s-iframe { flex:1; width:100%; border:0; }
         @media (prefers-color-scheme: dark) {
-          .s-card {
-            background: #0b0f14;
-            color: #e5e7eb;
-          }
-          .s-header {
-            border-color: #1f2937;
-          }
-          .s-close {
-            background: #0f141a;
-            border-color: #1f2937;
-            color: #e5e7eb;
-          }
+          .s-card { background:#0b0f14; color:#e5e7eb; }
+          .s-header { border-color:#1f2937; }
+          .s-close { background:#0f141a; border-color:#1f2937; color:#e5e7eb; }
         }
       `}</style>
     </dialog>
