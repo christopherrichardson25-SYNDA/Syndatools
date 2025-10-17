@@ -1,4 +1,3 @@
-// app/layout.tsx
 import "./globals.css";
 import Topbar from "@/components/Topbar";
 import Sidebar from "@/components/Sidebar";
@@ -16,8 +15,8 @@ export default async function RootLayout({
   children: React.ReactNode;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const sp = await searchParams;
-  const lang: Lang = detectLangFromSearch(sp);
+  const sp = await searchParams;               // <- evita hydration warnings
+  const lang: Lang = detectLangFromSearch(sp); // ES o EN
 
   return (
     <html lang={lang}>
@@ -31,3 +30,4 @@ export default async function RootLayout({
     </html>
   );
 }
+
