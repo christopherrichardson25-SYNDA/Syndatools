@@ -1,29 +1,27 @@
-// app/page.tsx (Server Component)
-import { headers } from "next/headers";
+// app/page.tsx
 import Link from "next/link";
+import { detectLangFromSearch, t, type Lang } from "@/lib/lang";
 
-export default async function Home() {
-  const h = await headers();
-  const accept = h.get("accept-language") || "";
-  const lang: "es" | "en" = accept.toLowerCase().startsWith("es") ? "es" : "en";
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const lang: Lang = detectLangFromSearch(sp);
+  const dict = t(lang);
 
-  // Render estático, sin navigator / Date.now / etc.
+  const qs = new URLSearchParams(sp as Record<string, string>).toString();
+  const toolsHref = `/tools?${qs}`;
+
   return (
     <div className="space-y-6">
-      <div className="card p-8">
-        <h1 className="text-2xl font-bold">
-          {lang === "es" ? "Bienvenido a SYNDATools" : "Welcome to SYNDATools"}
-        </h1>
-        <p className="text-sv-muted mt-2">
-          {lang === "es"
-            ? "Launcher de aplicaciones del ecosistema Syndaverse. Cada app se conecta con SyndaBrain."
-            : "Launcher for Syndaverse apps. Each app connects to SyndaBrain."}
-        </p>
-        <div className="mt-4 flex gap-3">
-          <Link href="/tools" className="btn btn-primary">
-            {lang === "es" ? "Ir al catálogo" : "Open catalog"}
-          </Link>
-        </div>
+      <h1 className="text-2xl font-bold">{dict.homeTitle}</h1>
+      <p className="text-sv-muted mt-2">{dict.homeLead}</p>
+      <div className="mt-4">
+        <Link href={toolsHref} className="btn btn-primary">
+          {dict.goCatalog}
+        </Link>
       </div>
     </div>
   );
