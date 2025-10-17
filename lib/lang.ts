@@ -18,33 +18,30 @@ export function t(lang: Lang) {
     navHome: "Home",
     navTools: "Tools",
     navSyndaverse: "Syndaverse",
-    hdrCatalog: "Syndaverse",
+    hdrSyndaverse: "Syndaverse",
     hdrLetsChat: "Let’s Chat",
     homeTitle: "Welcome to SYNDATools",
-    homeLead: "Quick access and tools catalog.",
+    homeLead: "Catalog of tools and quick access.",
     goCatalog: "Go to catalog",
     toolsTitle: "Tools Catalog",
-    cardChatTitle: "Synda Chat",
-    cardChatDesc: "Ask SyndaBrain about SyndaTools",
-    open: "Open",
-    soon: "Coming soon",
+    cardOpen: "Open",
+    cardSoon: "Coming soon",
   };
 
   const es = {
     navHome: "Inicio",
     navTools: "Tools",
     navSyndaverse: "Syndaverse",
-    hdrCatalog: "Syndaverse",
+    hdrSyndaverse: "Syndaverse",
     hdrLetsChat: "Let’s Chat",
     homeTitle: "Bienvenido a SYNDATools",
     homeLead: "Catálogo de herramientas y acceso rápido.",
     goCatalog: "Ir al catálogo",
     toolsTitle: "Catálogo de Herramientas",
-    cardChatTitle: "Synda Chat",
-    cardChatDesc: "Consulta a SyndaBrain sobre SyndaTools",
-    open: "Abrir",
-    soon: "Próximamente",
+    cardOpen: "Abrir",
+    cardSoon: "Próximamente",
   };
 
   return lang === "en" ? en : es;
 }
+
