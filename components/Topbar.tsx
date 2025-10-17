@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import { useState } from "react";
 import SyndabrainModal from "./SyndabrainModal";
 
@@ -15,13 +14,11 @@ export default function Topbar() {
             <span className="font-semibold">SyndaTools</span>
           </div>
 
-          <div className="ml-auto flex items-center gap-2">
-            {/* Quitamos "Catálogo" del header */}
+          <div className="ml-auto">
             <button
               onClick={() => setOpen(true)}
               className="inline-flex items-center rounded-2xl px-4 py-2 text-sm font-semibold
-                         bg-blue-600 text-white shadow-sm hover:shadow-md active:translate-y-[1px]
-                         transition"
+                         bg-blue-600 text-white shadow-sm hover:shadow-md active:translate-y-[1px] transition"
             >
               LET’S CHAT
             </button>
@@ -29,11 +26,7 @@ export default function Topbar() {
         </div>
       </header>
 
-      <SyndabrainModal
-        open={open}
-        onClose={() => setOpen(false)}
-        pageContext={{ source: "syndatools", section: "header" }}
-      />
+      <SyndabrainModal open={open} onClose={() => setOpen(false)} pageContext={{ source: "syndatools", section: "header" }} />
     </>
   );
 }
