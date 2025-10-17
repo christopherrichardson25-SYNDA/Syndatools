@@ -1,23 +1,25 @@
+"use client";
 import Link from "next/link";
 
-const items = [
-  { href: "/tools", label: "Apps" },
-  { href: "/about", label: "Acerca de" },
-];
-
 export default function Sidebar() {
+  const landing = process.env.NEXT_PUBLIC_LANDING_URL;
+
   return (
     <aside className="hidden md:block w-64 border-r border-sv-border bg-white">
       <nav className="p-4 space-y-1">
-        {items.map((it) => (
-          <Link
-            key={it.href}
-            href={it.href}
+        <Link href="/" className="block rounded-lg px-3 py-2 text-sm hover:bg-sv-bg">Inicio</Link>
+        <Link href="/tools" className="block rounded-lg px-3 py-2 text-sm hover:bg-sv-bg">Tools</Link>
+
+        {landing && (
+          <a
+            href={landing}
             className="block rounded-lg px-3 py-2 text-sm hover:bg-sv-bg"
+            target="_self"       // abre en la misma pestaña
+            rel="noopener"
           >
-            {it.label}
-          </Link>
-        ))}
+            Syndaverse
+          </a>
+        )}
       </nav>
     </aside>
   );
