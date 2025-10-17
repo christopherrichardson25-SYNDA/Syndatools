@@ -1,38 +1,47 @@
-import AppCard from "@/components/AppCard"
-import { APPS } from "@/app/_data/apps"
+import AppCard from "@/components/AppCard";
+import { APPS } from "@/lib/apps";
 
-async function ping(url: string) {
+async function ping(url: string): Promise<boolean> {
   try {
-    const r = await fetch(url, { cache: "no-store" })
-    return r.ok
-  } catch { return false }
+    const r = await fetch(url, { cache: "no-store", next: { revalidate: 0 } });
+    return r.ok;
+  } catch {
+    return false;
+  }
 }
 
 export default async function ToolsPage() {
   const statuses = await Promise.all(
-    APPS.map(a => a.healthPath ? ping(a.url + a.healthPath) : Promise.resolve(true))
-  )
+    APPS.map(async (app) => ({
+      ...app,
+      online: app.href.startsWith("http") ? await ping(app.href) : app.online,
+    }))
+  );
 
   return (
-    <div className="space-y-6">
+    <section className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Catálogo de apps</h1>
-        <p className="text-sv-muted">Lanza las aplicaciones. Cada app se conecta a SYNDAbrain de forma directa.</p>
+        <p className="text-sv-muted mt-2">
+          Explora las aplicaciones conectadas al ecosistema Syndaverse. Cada app
+          puede integrarse con <strong>SyndaBrain</strong> para potenciar sus
+          funciones.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {APPS.map((a, i) => (
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {statuses.map((app) => (
           <AppCard
-            key={a.id}
-            name={a.name}
-            description={a.description}
-            icon={a.icon}
-            href={a.url}
-            soon={a.soon}
-            online={statuses[i]}
+            key={app.key}
+            name={app.name}
+            description={app.description}
+            icon={app.icon}
+            href={app.href}
+            online={app.online}
+            soon={app.soon}
           />
         ))}
       </div>
-    </div>
-  )
+    </section>
+  );
 }
