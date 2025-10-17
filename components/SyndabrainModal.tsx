@@ -1,52 +1,95 @@
+// components/SyndabrainModal.tsx
 "use client";
-
 import { useEffect, useRef } from "react";
+
+type PageContextValue = string | number | boolean | null | undefined;
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  src: string; // URL completa al widget
+  userId?: string | null;
+  userEmail?: string | null;
+  pageContext?: Record<string, PageContextValue>;
 };
 
-export default function SyndabrainModal({ open, onClose, src }: Props) {
-  const ref = useRef<HTMLDialogElement | null>(null);
+export default function SyndabrainModal({
+  open,
+  onClose,
+  userId,
+  userEmail,
+  pageContext = {},
+}: Props) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
-    const dlg = ref.current;
-    if (!dlg) return;
-    if (open && !dlg.open) dlg.showModal();
-    if (!open && dlg.open) dlg.close();
+    const d = dialogRef.current;
+    if (!d) return;
+    if (open && !d.open) d.showModal();
+    if (!open && d.open) d.close();
   }, [open]);
 
-  // cerrar por backdrop
-  const onBackdrop = (e: React.MouseEvent<HTMLDialogElement>) => {
-    const rect = (e.target as HTMLDialogElement).getBoundingClientRect();
+  useEffect(() => {
+    const d = dialogRef.current;
+    if (!d) return;
+    const onCancel = (e: Event) => { e.preventDefault(); onClose(); };
+    d.addEventListener("cancel", onCancel);
+    return () => d.removeEventListener("cancel", onCancel);
+  }, [onClose]);
+
+  // normaliza pageContext a string
+  const normalizedEntries: [string, string][] = Object.entries(pageContext).map(
+    ([k, v]) => [k, v == null ? "" : String(v)]
+  );
+
+  // importante: mismo endpoint interno que el dashboard
+  const base = "/syndabrain/widget";
+  const qs = new URLSearchParams({
+    uid: userId ?? "",
+    email: userEmail ?? "",
+    lang: typeof window !== "undefined" ? (navigator.language || "en") : "en",
+    ...Object.fromEntries(normalizedEntries),
+  }).toString();
+
+  const src = `${base}?${qs}`;
+
+  const onBackdropClick = (e: React.MouseEvent<HTMLDialogElement>) => {
+    const d = dialogRef.current!;
+    const r = d.getBoundingClientRect();
     const inside =
-      e.clientX >= rect.left &&
-      e.clientX <= rect.right &&
-      e.clientY >= rect.top &&
-      e.clientY <= rect.bottom;
+      e.clientX >= r.left && e.clientX <= r.right &&
+      e.clientY >= r.top && e.clientY <= r.bottom;
     if (!inside) onClose();
   };
 
   return (
-    <dialog
-      ref={ref}
-      onMouseDown={onBackdrop}
-      className="rounded-xl p-0 w-[min(980px,90vw)] h-[min(720px,85vh)]"
-    >
-      <div className="flex items-center justify-between px-4 py-3 border-b">
-        <h3 className="font-semibold">SyndaBrain</h3>
-        <button onClick={onClose} aria-label="Close" className="px-2 py-1">
-          ✕
-        </button>
+    <dialog ref={dialogRef} className="s-modal" onMouseDown={onBackdropClick} aria-labelledby="syndabrain-title">
+      <div className="s-card">
+        <header className="s-header">
+          <h2 id="syndabrain-title" className="s-title">SYNDA Chat</h2>
+          <button className="s-close" onClick={onClose} aria-label="Close">✕</button>
+        </header>
+        <iframe
+          src={src}
+          title="Syndabrain"
+          className="s-iframe"
+          allow="clipboard-write; microphone; camera"
+        />
       </div>
-      <iframe
-        src={src}
-        title="Syndabrain"
-        allow="clipboard-write; microphone; camera"
-        className="w-full h-[calc(100%-3rem)]"
-      />
+
+      <style jsx>{`
+        .s-modal { padding:0; border:none; background:transparent; }
+        .s-modal::backdrop { backdrop-filter: blur(4px); background: rgba(0,0,0,.35); }
+        .s-card { width:min(960px,95vw); height:min(80vh,820px); background:#fff; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.15); display:flex; flex-direction:column; overflow:hidden; }
+        .s-header { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-bottom:1px solid #e5e7eb; }
+        .s-title { margin:0; font-size:1rem; font-weight:600; }
+        .s-close { border:1px solid #e5e7eb; border-radius:10px; padding:6px 10px; background:#f9fafb; cursor:pointer; }
+        .s-iframe { flex:1; width:100%; border:0; }
+        @media (prefers-color-scheme: dark) {
+          .s-card { background:#0b0f14; color:#e5e7eb; }
+          .s-header { border-color:#1f2937; }
+          .s-close { background:#0f141a; border-color:#1f2937; color:#e5e7eb; }
+        }
+      `}</style>
     </dialog>
   );
 }
