@@ -1,13 +1,20 @@
-import "./globals.css"
-import Topbar from "@/components/Topbar"
-import Sidebar from "@/components/Sidebar"
+import "./globals.css";
+import Topbar from "@/components/Topbar";
+import Sidebar from "@/components/Sidebar";
 
-export const metadata = { title: "SYNDAtools", description: "Launcher de apps Syndaverse" }
+export const metadata = {
+  title: "SYNDATools",
+  description: "Launcher de aplicaciones del ecosistema Syndaverse",
+};
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="es">
-      <body>
+      <body className="bg-sv-bg text-sv-foreground min-h-screen">
         <Topbar />
         <div className="container-xl flex gap-6 py-6">
           <Sidebar />
@@ -15,5 +22,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </div>
       </body>
     </html>
-  )
+  );
 }
