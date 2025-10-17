@@ -1,23 +1,20 @@
-// components/Sidebar.tsx
 "use client";
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { t, type Lang, detectLangFromSearch } from "@/lib/lang";
+import { t, type Lang } from "@/lib/lang";
 
 export default function Sidebar({ lang }: { lang: Lang }) {
   const dict = t(lang);
   const sp = useSearchParams();
+  const landing =
+    process.env.NEXT_PUBLIC_LANDING_URL ||
+    "https://syndaverse-dashboard.vercel.app";
 
-  // mantiene el ?lang= al navegar
   const withLang = (href: string) => {
     const p = new URLSearchParams(sp?.toString() || "");
     return `${href}?${p.toString()}`;
   };
-
-  const landing =
-    process.env.NEXT_PUBLIC_LANDING_URL ||
-    "https://syndaverse-dashboard.vercel.app";
 
   const items = [
     { href: "/", label: dict.navHome },
@@ -48,3 +45,4 @@ export default function Sidebar({ lang }: { lang: Lang }) {
     </aside>
   );
 }
+
