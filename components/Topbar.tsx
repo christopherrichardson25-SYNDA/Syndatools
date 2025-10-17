@@ -1,7 +1,6 @@
-// components/Topbar.tsx
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import SyndabrainModal from "./SyndabrainModal";
 import { t, type Lang } from "@/lib/lang";
@@ -14,16 +13,15 @@ export default function Topbar({ lang }: { lang: Lang }) {
   const router = useRouter();
 
   const setLang = (next: Lang) => {
-    const params = new URLSearchParams(sp?.toString() || "");
-    params.set("lang", next);
-    router.push(`${pathname}?${params.toString()}`);
+    const p = new URLSearchParams(sp?.toString() || "");
+    p.set("lang", next);
+    router.push(`${pathname}?${p.toString()}`);
   };
 
   const landing =
     process.env.NEXT_PUBLIC_LANDING_URL ||
     "https://syndaverse-dashboard.vercel.app";
 
-  // params constantes para iframe
   const pageContext = useMemo(
     () => ({ source: "syndatools", section: "header" }),
     []
@@ -36,16 +34,10 @@ export default function Topbar({ lang }: { lang: Lang }) {
         <span className="font-semibold">SYNDATools</span>
 
         <div className="ml-auto flex items-center gap-2">
-          <a
-            href={landing}
-            target="_blank"
-            rel="noopener"
-            className="btn btn-ghost"
-          >
-            {dict.hdrCatalog}
+          <a href={landing} target="_blank" rel="noopener" className="btn btn-ghost">
+            {dict.hdrSyndaverse}
           </a>
 
-          {/* Selector ES/EN */}
           <div className="inline-flex rounded-lg border">
             <button
               className={`px-3 py-1 text-sm ${lang === "es" ? "bg-sv-bg" : ""}`}
