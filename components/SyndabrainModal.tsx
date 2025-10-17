@@ -1,9 +1,14 @@
 "use client";
-import { useMemo, useRef, useEffect } from "react";
 
-export default function SyndabrainModal({
-  open, onClose, pageContext,
-}: { open: boolean; onClose: () => void; pageContext?: { source?: string; section?: string; lang?: string; uid?: string; email?: string }}) {
+import { useEffect, useRef } from "react";
+
+type Props = {
+  open: boolean;
+  onClose: () => void;
+  src: string; // URL completa al widget
+};
+
+export default function SyndabrainModal({ open, onClose, src }: Props) {
   const ref = useRef<HTMLDialogElement | null>(null);
 
   useEffect(() => {
@@ -13,34 +18,36 @@ export default function SyndabrainModal({
     if (!open && dlg.open) dlg.close();
   }, [open]);
 
-  const src = useMemo(() => {
-    const base = (process.env.NEXT_PUBLIC_SYNDABRAIN_URL || "/syndabrain").replace(/\/$/, "");
-    const params = new URLSearchParams({
-      uid: pageContext?.uid ?? "",
-      email: pageContext?.email ?? "",
-      lang: pageContext?.lang ?? "es",
-      source: pageContext?.source ?? "syndatools",
-      section: pageContext?.section ?? "header",
-    });
-    return `${base}/widget?${params.toString()}`;
-  }, [pageContext]);
+  // cerrar por backdrop
+  const onBackdrop = (e: React.MouseEvent<HTMLDialogElement>) => {
+    const rect = (e.target as HTMLDialogElement).getBoundingClientRect();
+    const inside =
+      e.clientX >= rect.left &&
+      e.clientX <= rect.right &&
+      e.clientY >= rect.top &&
+      e.clientY <= rect.bottom;
+    if (!inside) onClose();
+  };
 
   return (
-    <dialog ref={ref} className="s-modal" onClose={onClose} onClick={(e) => e.target === ref.current && onClose()}>
-      <div className="s-content">
-        <header className="s-header">
-          <span className="s-title">SyndaBrain</span>
-          <button className="s-close" onClick={onClose}>✕</button>
-        </header>
-        <iframe title="SyndaBrain" src={src} allow="clipboard-write; microphone; camera" className="s-iframe" />
+    <dialog
+      ref={ref}
+      onMouseDown={onBackdrop}
+      className="rounded-xl p-0 w-[min(980px,90vw)] h-[min(720px,85vh)]"
+    >
+      <div className="flex items-center justify-between px-4 py-3 border-b">
+        <h3 className="font-semibold">SyndaBrain</h3>
+        <button onClick={onClose} aria-label="Close" className="px-2 py-1">
+          ✕
+        </button>
       </div>
-      <style jsx>{`
-        .s-modal{padding:0;border:none;width:min(960px,96vw)}
-        .s-content{display:flex;flex-direction:column;height:min(80vh,720px);background:#fff;border-radius:12px;overflow:hidden}
-        .s-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #eee}
-        .s-title{font-weight:600}.s-close{border:0;background:transparent;font-size:18px;cursor:pointer}
-        .s-iframe{width:100%;height:100%;border:0}
-      `}</style>
+      <iframe
+        src={src}
+        title="Syndabrain"
+        allow="clipboard-write; microphone; camera"
+        className="w-full h-[calc(100%-3rem)]"
+      />
     </dialog>
   );
 }
+
