@@ -1,23 +1,30 @@
-export default function Home() {
-  return (
-    <section className="space-y-6">
-      <div className="card p-8">
-        <h1 className="text-2xl font-bold">Bienvenido a SYNDATools</h1>
-        <p className="text-sv-muted mt-2">
-          Launcher de aplicaciones del ecosistema <strong>Syndaverse</strong>.
-          Cada app se conecta con <strong>SyndaBrain</strong> para asistencia e
-          interacción inteligente.
-        </p>
+// app/page.tsx (Server Component)
+import { headers } from "next/headers";
+import Link from "next/link";
 
-        <div className="mt-6 flex gap-3">
-          <a href="/tools" className="btn btn-primary">
-            Ir al catálogo
-          </a>
-          <a href="/lets-chat" className="btn btn-ghost">
-            Chat con SyndaBrain
-          </a>
+export default async function Home() {
+  const h = await headers();
+  const accept = h.get("accept-language") || "";
+  const lang: "es" | "en" = accept.toLowerCase().startsWith("es") ? "es" : "en";
+
+  // Render estático, sin navigator / Date.now / etc.
+  return (
+    <div className="space-y-6">
+      <div className="card p-8">
+        <h1 className="text-2xl font-bold">
+          {lang === "es" ? "Bienvenido a SYNDATools" : "Welcome to SYNDATools"}
+        </h1>
+        <p className="text-sv-muted mt-2">
+          {lang === "es"
+            ? "Launcher de aplicaciones del ecosistema Syndaverse. Cada app se conecta con SyndaBrain."
+            : "Launcher for Syndaverse apps. Each app connects to SyndaBrain."}
+        </p>
+        <div className="mt-4 flex gap-3">
+          <Link href="/tools" className="btn btn-primary">
+            {lang === "es" ? "Ir al catálogo" : "Open catalog"}
+          </Link>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
