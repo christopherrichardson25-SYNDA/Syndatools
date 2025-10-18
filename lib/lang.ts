@@ -1,42 +1,10 @@
 export type Lang = "es" | "en";
+export type SP = Record<string, string | string[] | undefined>;
 
-export function detectLangFromSearch(
-  sp?: Record<string, string | string[] | undefined> | null
-): Lang {
-  const v = sp?.lang;
+/** Dado searchParams resueltos, detecta idioma (default: "en") */
+export function detectLangFromSearch(sp: SP): Lang {
+  const src = sp?.lang;
   const raw =
-    typeof v === "string" ? v : Array.isArray(v) ? v[0] : "";
-  return raw?.toLowerCase().startsWith("en") ? "en" : "es";
-}
-
-export function t(lang: Lang) {
-  const en = {
-    navHome: "Home",
-    navTools: "Tools",
-    navSyndaverse: "Syndaverse",
-    hdrSyndaverse: "Syndaverse",
-    hdrLetsChat: "Let’s Chat",
-    homeTitle: "Welcome to SYNDATools",
-    homeLead: "Catalog of tools and quick access.",
-    goCatalog: "Go to catalog",
-    toolsTitle: "Tools Catalog",
-    cardOpen: "Open",
-    cardSoon: "Coming soon",
-  };
-
-  const es = {
-    navHome: "Inicio",
-    navTools: "Tools",
-    navSyndaverse: "Syndaverse",
-    hdrSyndaverse: "Syndaverse",
-    hdrLetsChat: "Let’s Chat",
-    homeTitle: "Bienvenido a SYNDATools",
-    homeLead: "Catálogo de herramientas y acceso rápido.",
-    goCatalog: "Ir al catálogo",
-    toolsTitle: "Catálogo de Herramientas",
-    cardOpen: "Abrir",
-    cardSoon: "Próximamente",
-  };
-
-  return lang === "en" ? en : es;
+    typeof src === "string" ? src : Array.isArray(src) ? src[0] : "";
+  return raw.toLowerCase().startsWith("es") ? "es" : "en";
 }
