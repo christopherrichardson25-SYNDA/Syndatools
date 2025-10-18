@@ -19,8 +19,8 @@ export default function Sidebar() {
   };
 
   const items = [
-    { href: "/", label: dict.navHome },
-    { href: "/tools", label: dict.navTools },
+    { href: "/", label: dict.nav.home },
+    { href: "/tools", label: dict.nav.tools },
   ];
 
   return (
