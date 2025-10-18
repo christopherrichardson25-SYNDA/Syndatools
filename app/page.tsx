@@ -1,27 +1,23 @@
+// app/page.tsx
 import Link from "next/link";
-import { detectLangFromSearch, t, type Lang } from "@/lib/lang";
+import { detectLangFromSearch, t, type Lang, type SP } from "@/lib/lang";
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  searchParams: Promise<SP>;
 }) {
   const sp = await searchParams;
   const lang: Lang = detectLangFromSearch(sp);
-  const dict = t(lang);
-
-  const qs = new URLSearchParams(sp as Record<string, string>).toString();
-  const toolsHref = `/tools?${qs}`;
+  const i = t(lang);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">{dict.homeTitle}</h1>
-      <p className="text-sv-muted mt-2">{dict.homeLead}</p>
-      <div className="mt-4">
-        <Link href={toolsHref} className="btn btn-primary">
-          {dict.goCatalog}
-        </Link>
-      </div>
-    </div>
+    <main className="p-6 space-y-4">
+      <h1 className="text-2xl font-semibold">{i.home.heroTitle}</h1>
+      <p className="text-slate-600">{i.home.heroLead}</p>
+      <Link href={`/tools?lang=${lang}`} className="btn btn-primary">
+        {i.home.ctaTools}
+      </Link>
+    </main>
   );
 }
