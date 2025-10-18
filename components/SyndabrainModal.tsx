@@ -1,9 +1,9 @@
-// components/SyndabrainModal.tsx
 "use client";
+
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useMounted } from "@/lib/useMounted";
 
 type PageContextValue = string | number | boolean | null | undefined;
+
 type Props = {
   open: boolean;
   onClose: () => void;
@@ -12,10 +12,20 @@ type Props = {
   pageContext?: Record<string, PageContextValue>;
 };
 
-export default function SyndabrainModal({ open, onClose, userId, userEmail, pageContext = {} }: Props) {
+export default function SyndabrainModal({
+  open,
+  onClose,
+  userId,
+  userEmail,
+  pageContext = {},
+}: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const mounted = useMounted();
 
+  // solo cliente
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  // abrir/cerrar dialog cuando cambia "open"
   useEffect(() => {
     const d = dialogRef.current;
     if (!d) return;
@@ -23,14 +33,19 @@ export default function SyndabrainModal({ open, onClose, userId, userEmail, page
     if (!open && d.open) d.close();
   }, [open]);
 
+  // evitar que ESC cierre sin onClose
   useEffect(() => {
     const d = dialogRef.current;
     if (!d) return;
-    const onCancel = (e: Event) => { e.preventDefault(); onClose(); };
+    const onCancel = (e: Event) => {
+      e.preventDefault();
+      onClose();
+    };
     d.addEventListener("cancel", onCancel);
     return () => d.removeEventListener("cancel", onCancel);
   }, [onClose]);
 
+  // idioma solo en cliente
   const [lang, setLang] = useState<"en" | "es">("en");
   useEffect(() => {
     try {
@@ -39,31 +54,47 @@ export default function SyndabrainModal({ open, onClose, userId, userEmail, page
     } catch {}
   }, []);
 
-  const base = (process.env.NEXT_PUBLIC_SYNDABRAIN_URL?.replace(/\/$/, "") || "/syndabrain") + "/widget";
+  const base =
+    (process.env.NEXT_PUBLIC_SYNDABRAIN_URL?.replace(/\/$/, "") || "/syndabrain") +
+    "/widget";
 
-  const qsObj: Record<string, string> = {
+  // normaliza y ORDENA las query params para que sean deterministas
+  const entries = Object.entries({
     uid: userId ?? "",
     email: userEmail ?? "",
     lang,
-    ...Object.fromEntries(Object.entries(pageContext).map(([k, v]) => [k, v == null ? "" : String(v)])),
+    ...(Object.fromEntries(
+      Object.entries(pageContext).map(([k, v]) => [k, v == null ? "" : String(v)])
+    ) as Record<string, string>),
+  }).sort(([a], [b]) => a.localeCompare(b));
+
+  const src = useMemo(() => {
+    const qs = new URLSearchParams(entries).toString();
+    return `${base}?${qs}`;
+  }, [base, lang, userId, userEmail, JSON.stringify(entries)]);
+
+  // No renderizamos el iframe hasta estar montados y abiertos
+  if (!open) return null;
+
+  const onBackdropClick = (e: React.MouseEvent<HTMLDialogElement>) => {
+    const d = dialogRef.current!;
+    const r = d.getBoundingClientRect();
+    const inside =
+      e.clientX >= r.left &&
+      e.clientX <= r.right &&
+      e.clientY >= r.top &&
+      e.clientY <= r.bottom;
+    if (!inside) onClose();
   };
 
-  const src = useMemo(() => `${base}?${new URLSearchParams(qsObj).toString()}`, [base, lang, userId, userEmail, pageContext]);
-
   return (
-    <dialog ref={dialogRef} className="s-modal" onMouseDown={(e) => {
-      const d = dialogRef.current!;
-      const r = d.getBoundingClientRect();
-      const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
-      if (!inside) onClose();
-    }}>
+    <dialog ref={dialogRef} className="s-modal" onMouseDown={onBackdropClick} aria-labelledby="syndabrain-title">
       <div className="s-card">
         <header className="s-header">
-          <h2 className="s-title">SYNDA Chat</h2>
+          <h2 id="syndabrain-title" className="s-title">SYNDA Chat</h2>
           <button className="s-close" onClick={onClose} aria-label="Close">✕</button>
         </header>
 
-        {/* 👇 Evita mismatch: solo renderiza el iframe en cliente */}
         {mounted ? (
           <iframe
             src={src}
@@ -75,6 +106,7 @@ export default function SyndabrainModal({ open, onClose, userId, userEmail, page
           <div className="s-iframe" aria-hidden />
         )}
       </div>
+
       <style jsx>{`
         .s-modal { padding:0; border:none; background:transparent; }
         .s-modal::backdrop { backdrop-filter: blur(4px); background: rgba(0,0,0,.35); }
@@ -92,4 +124,3 @@ export default function SyndabrainModal({ open, onClose, userId, userEmail, page
     </dialog>
   );
 }
-

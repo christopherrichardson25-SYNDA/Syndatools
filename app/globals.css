@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Opcional: estilos base */
+html, body, #__next { height: 100%; }
+body { margin: 0; color: #111827; background: #ffffff; }
+
+/* badges/cards util */
+.badge{font-size:12px;padding:2px 8px;border-radius:9999px;border:1px solid transparent}
+.badge-online{color:#065f46;background:#ecfdf5;border-color:#a7f3d0}
+.badge-offline{color:#6b7280;background:#f3f4f6;border-color:#e5e7eb}
+.card{border:1px solid #e5e7eb;border-radius:12px;background:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:36px;padding:0 14px;border-radius:10px;border:1px solid #e5e7eb}
+.btn-primary{background:#0b5cff;color:#fff;border-color:#0b5cff}
+.btn-ghost{background:#fff;color:#111827}

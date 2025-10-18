@@ -1,13 +1,12 @@
-// app/_data/apps.ts
 export type AppItem = {
   key: "vibragro" | "vibramed";
   name: { es: string; en: string };
   description: { es: string; en: string };
-  href: string;          // ruta interna o externa
-  icon?: string;         // (opcional) /public/xxx.svg
+  href: string;
+  icon?: string;
   online: boolean;
   soon?: boolean;
-  healthPath?: string;   // opcional para ping
+  healthPath?: string;
 };
 
 const APPS: AppItem[] = [
@@ -18,7 +17,7 @@ const APPS: AppItem[] = [
       es: "Sistema de monitoreo ambiental y diagnóstico del estado de salud vegetal.",
       en: "Environmental monitoring and plant health assessment system.",
     },
-    href: "#",         // reemplaza por la ruta cuando esté lista
+    href: "#",
     online: true,
     healthPath: "/api/ping",
   },

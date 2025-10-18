@@ -4,9 +4,11 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { t, type Lang } from "@/lib/lang";
 
-export default function Sidebar({ lang }: { lang: Lang }) {
-  const dict = t(lang);
+export default function Sidebar() {
   const sp = useSearchParams();
+  const lang: Lang = (sp?.get("lang")?.toLowerCase().startsWith("en") ? "en" : "es");
+  const dict = t(lang);
+
   const landing =
     process.env.NEXT_PUBLIC_LANDING_URL ||
     "https://syndaverse-dashboard.vercel.app";
@@ -45,4 +47,3 @@ export default function Sidebar({ lang }: { lang: Lang }) {
     </aside>
   );
 }
-

@@ -1,15 +1,11 @@
-// lib/lang.ts
 export type Lang = "es" | "en";
 
 export function detectLangFromSearch(
-  sp: Record<string, string | string[] | undefined>
+  sp?: Record<string, string | string[] | undefined> | null
 ): Lang {
+  const v = sp?.lang;
   const raw =
-    typeof sp.lang === "string"
-      ? sp.lang
-      : Array.isArray(sp.lang)
-      ? sp.lang[0]
-      : "";
+    typeof v === "string" ? v : Array.isArray(v) ? v[0] : "";
   return raw?.toLowerCase().startsWith("en") ? "en" : "es";
 }
 
@@ -44,4 +40,3 @@ export function t(lang: Lang) {
 
   return lang === "en" ? en : es;
 }
-
