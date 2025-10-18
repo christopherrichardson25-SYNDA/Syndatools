@@ -1,1 +1,16 @@
-node_modules
+# deps
+node_modules/
+
+# builds
+.next/
+out/
+dist/
+
+# env / local
+.env*
+!.env.example
+
+# editor/OS
+.vscode/
+.DS_Store
+*.log
