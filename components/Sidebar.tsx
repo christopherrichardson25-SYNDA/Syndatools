@@ -41,7 +41,7 @@ export default function Sidebar() {
           rel="noopener"
           className="block rounded-lg px-3 py-2 text-sm hover:bg-sv-bg"
         >
-          {dict.navSyndaverse}
+          {dict.nav.syndaverse}
         </a>
       </nav>
     </aside>
