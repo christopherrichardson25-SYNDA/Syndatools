@@ -16,19 +16,33 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
-      - run: npm run build
+      - run: npm run build --if-present
 
   deploy_prod_and_migrate:
     needs: lint_build
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
+    env:
+      # INYECTA LOS SECRETS AQUÍ
+      VERCEL_DEPLOY_HOOK_PROD: ${{ secrets.VERCEL_DEPLOY_HOOK_PROD }}
+      MIGRATIONS_EDGE_URL: ${{ secrets.MIGRATIONS_EDGE_URL }}
+      EDGE_ADMIN_TOKEN: ${{ secrets.EDGE_ADMIN_TOKEN }}
     steps:
-      - name: Deploy to Vercel (Production)
+      - name: Trigger Vercel (Production)
         run: |
-          curl -X POST "$VERCEL_DEPLOY_HOOK_PROD"
+          if [ -z "$VERCEL_DEPLOY_HOOK_PROD" ]; then
+            echo "Deploy hook vacío. Revisa el secret VERCEL_DEPLOY_HOOK_PROD"; exit 1;
+          fi
+          curl -s -X POST "$VERCEL_DEPLOY_HOOK_PROD" -o /tmp/vercel_resp.txt -w "\nHTTP %{http_code}\n"
+          echo "Vercel response:" && cat /tmp/vercel_resp.txt
       - name: Run Supabase migrations
         run: |
+          if [ -z "$MIGRATIONS_EDGE_URL" ] || [ -z "$EDGE_ADMIN_TOKEN" ]; then
+            echo "Faltan MIGRATIONS_EDGE_URL o EDGE_ADMIN_TOKEN"; exit 1;
+          fi
           curl -s -X POST "$MIGRATIONS_EDGE_URL" \
             -H "Authorization: Bearer $EDGE_ADMIN_TOKEN" \
             -H "Content-Type: application/json" \
-            -d '{"source":"github-ci"}'
+            -d '{"source":"github-actions"}' \
+            -o /tmp/migrate_resp.txt -w "\nHTTP %{http_code}\n"
+          echo "Migrations response:" && cat /tmp/migrate_resp.txt
